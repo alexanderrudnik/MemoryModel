@@ -1,6 +1,9 @@
 #ifndef MMEMORY_H_INCLUDED
 #define MMEMORY_H_INCLUDED
 
+#include <stdlib.h>
+#include <stdbool.h>
+
 
 
 #endif // MMEMORY_H_INCLUDED
@@ -95,4 +98,4 @@ int _write (VA ptr, size_t delt, void* pBuffer, size_t szBuffer);
 	@retval	-1	неверные параметры
 	@retval	1	неизвестная ошибка
  **/
-int _init (int n, int szPage);
+int _init_memory (int n, int szPage);

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "mmemory.h"
 
+#define PAGE_NUMBER 16
+#define PAGE_SIZE 128
+
 VA doMalloc(void);
 void doWrite(void);
 void doRead(void);
@@ -9,7 +12,9 @@ void doFree(void);
 
 int main(void)
 {
-    int choice, runnable = 1;
+    int choice = -1;
+    bool runnable = true;
+    printf("Init code: %i\n", _init_memory(PAGE_NUMBER, PAGE_SIZE));
     while(runnable) {
         printf("============================");
         printf("\n1 - Malloc\n2 - Write\n3 - Read\n4 - Free\n");
@@ -32,8 +37,7 @@ int main(void)
             doFree();
             break;
         case 5:
-            runnable = 0;
-            printf("See you later\n");
+            runnable = false;
             break;
         default:
             break;
