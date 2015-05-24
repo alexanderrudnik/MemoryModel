@@ -2,7 +2,7 @@
 #include "stdio.h"
 
 #define SWAP_FILE "swap.dat"
-#define MEMORY_SIZE 128
+#define MEMORY_SIZE 512
 
 enum ReturnCode {
     SUCCESS = 0,
@@ -47,17 +47,21 @@ int _free(VA ptr);
 
 void printInfo();
 int initPageTable();
-int writeToFile(int offset);
+int writeToFile(int offset, VA page);
 
 
 int _init_memory (int n, int szPage) {
     if (n <= 0 || szPage <= 0) {
         return WRONG_PARAMETERS;
     }
+    remove(SWAP_FILE);
+
     pageSize = szPage;
     pageNumb = n;
     pageTable = (struct Page*) malloc(sizeof(struct Page) * pageNumb);
     memory = (VA) malloc(sizeof(char) * MEMORY_SIZE);
+
+    printf("%d", *memory);
 
     if (NULL == pageTable || NULL == memory) {
         return UNKNOWN_ERROR;
@@ -80,9 +84,9 @@ int initPageTable() {
         pageTable[i].pFirstUse = NULL;
         pageTable[i].freeBlockSize = pageSize;
 
-        if ((i + 1) * pageSize >= MEMORY_SIZE) {
+        if ((i + 1) * pageSize > MEMORY_SIZE) {
             //write to swap file
-            if(!writeToFile(swapOffsetPage)) {
+            if(!writeToFile(swapOffsetPage, memory)) {
                 pageTable[i].pInfo.offsetPage = swapOffsetPage;
                 pageTable[i].pInfo.isUse = false;
             } else {
@@ -126,7 +130,7 @@ int _free (VA ptr) {
     return SUCCESS;
 }
 
-int writeToFile(int offset) {
+int writeToFile(int offset, VA page) {
     //open file for read
     FILE *file = fopen(SWAP_FILE, "r+");
 
@@ -142,12 +146,16 @@ int writeToFile(int offset) {
         return END_OF_FILE;
     }
     for (int i = 0; i < pageSize; ++i) {
-
+        fputc(page[i], file); //why ??????
     }
+    printInfo();
     fclose(file);
     return SUCCESS;
 }
 
 void printInfo() {
-
+    for (int i = 0; i < MEMORY_SIZE; ++i) {
+        printf("%c", memory[i]);
+    }
+    printf("\n");
 }

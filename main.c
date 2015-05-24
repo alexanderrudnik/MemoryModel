@@ -3,7 +3,7 @@
 #include "mmemory.h"
 
 #define PAGE_NUMBER 16
-#define PAGE_SIZE 128
+#define PAGE_SIZE 64
 
 VA doMalloc(void);
 void doWrite(void);
