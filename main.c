@@ -5,18 +5,20 @@
 #define PAGE_NUMBER 16
 #define PAGE_SIZE 64
 
-VA doMalloc(void);
+void doMalloc(void);
 void doWrite(void);
 void doRead(void);
 void doFree(void);
+
+VA ptr;
 
 int main(void)
 {
     int choice = -1;
     bool runnable = true;
-    printf("Init code: %i\n", _init_memory(PAGE_NUMBER, PAGE_SIZE));
+    printf("Init code = %i\n", _init_memory(PAGE_NUMBER, PAGE_SIZE));
     while(runnable) {
-        printf("============================");
+        printf("\n============================");
         printf("\n1 - Malloc\n2 - Write\n3 - Read\n4 - Free\n");
         printf("----------------------------");
         printf("\n5 - Exit\n");
@@ -46,20 +48,43 @@ int main(void)
     return 0;
 }
 
-VA doMalloc() {
-    VA a;
-    return a;
+void doMalloc() {
+    printf("\nMalloc\nInput memory size - ");
+    unsigned int memorySize;
+    scanf("%i", &memorySize);
+    printf("Return code = %i\n", _malloc(&ptr, memorySize));
 }
 
 void doWrite() {
-
+    printf("\nWrite\nInput address - ");
+    int address;
+    scanf("%i", &address);
+    ptr = (VA) address;
+    char buffer[1000];
+    printf("\nInput data - ");
+    scanf("%s", &buffer);
+    printf("Return code = %i\n", _write(ptr, buffer, strlen(buffer)));
 }
 
 void doRead() {
-
+    printf("\nRead\nInput address - ");
+    int address;
+    scanf("%i", &address);
+    ptr = (VA) address;
+    char buffer[1000];
+    printf("\nInput size - ");
+    unsigned int bufferSize;
+    scanf("%u", &bufferSize);
+    printf("Return code = %i\n", _read(ptr, &buffer, bufferSize + 1));
+    printf("%s", buffer);
 }
 
 void doFree() {
-
+    printf("\nFree\nInput address - ");
+    int address;
+    scanf("%i", &address);
+    ptr = (VA) address;
+    printf("Return code = %i\n", _free(ptr));
+    _write(ptr, " ", 1);
 }
 
