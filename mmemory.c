@@ -140,12 +140,16 @@ int _write (VA ptr, void* pBuffer, size_t szBuffer) {
     unsigned int offsetPage, offsetBlock;
     vaddr = convertVAtoPA(ptr, &offsetPage, &offsetBlock);
     printf("%s", vaddr);
-    if (NULL == vaddr) {
+    if (!vaddr) {
         swapPages(getNonActivePage(), &pageTable[offsetPage]);
         vaddr = convertVAtoPA(ptr, &offsetPage, &offsetBlock);
     }
 
-    VA paBuffer = (VA) pBuffer;
+    struct Block* writtenBlock = getRequiredBlock(offsetPage, offsetBlock);
+    if (szBuffer > writtenBlock -> szBlock) {
+        return NOT_ENOUGH_SPACE;
+    }
+    char* paBuffer = (char*) pBuffer;
     for (unsigned int i = 0; i < szBuffer; ++i) {
         vaddr[i] = paBuffer[i];
     }
@@ -166,7 +170,11 @@ int _read (VA ptr, void* pBuffer, size_t szBuffer) {
         raddr = convertVAtoPA(ptr, &offsetPage, &offsetBlock);
     }
 
-    VA vaBuffer = (VA) pBuffer;
+    struct Block* readBlock = getRequiredBlock(offsetPage, offsetBlock);
+    if (szBuffer > readBlock -> szBlock) {
+        return NOT_ENOUGH_SPACE;
+    }
+    char* vaBuffer = (char*) pBuffer;
     for (unsigned int i = 0; i < szBuffer; ++i) {
         vaBuffer[i] = raddr[i];
     }
@@ -177,6 +185,7 @@ int _read (VA ptr, void* pBuffer, size_t szBuffer) {
 int _free (VA ptr) {
     unsigned int offsetPage, offsetBlock;
     convertVAtoPA(ptr, &offsetPage, &offsetBlock);
+    printf("\n%i %i\n", offsetPage, offsetBlock);
     struct Block* freeBlock = getRequiredBlock(offsetPage, offsetBlock);
     struct Block* prevBlock = getPreviousBlock(offsetPage, offsetBlock);
 
@@ -298,6 +307,7 @@ void addToUsedBlocks(struct Page* page, struct Block* block) {
     }
     if (prevBlockPtr) {
         prevBlockPtr -> pNext = block;
+        block -> pNext = NULL;
     }
     else {
         page -> pFirstUse = block;
@@ -305,15 +315,15 @@ void addToUsedBlocks(struct Page* page, struct Block* block) {
 }
 
 void addToFreeBlock(struct Page* page, struct Block* block) {
-    struct Block* freeBlockPtr = page -> pFirstFree;
+    struct Block* blockPtr = page -> pFirstFree;
     struct Block* prevBlockPtr = NULL;
 
-    while (NULL != freeBlockPtr) {
-        prevBlockPtr = freeBlockPtr;
-        freeBlockPtr = freeBlockPtr -> pNext;
+    while (blockPtr) {
+        prevBlockPtr = blockPtr;
+        blockPtr = blockPtr -> pNext;
     }
 
-    if (NULL != prevBlockPtr) {
+    if (prevBlockPtr) {
         if (prevBlockPtr -> offsetBlock + prevBlockPtr -> szBlock == block -> offsetBlock) {
             prevBlockPtr -> szBlock += block -> szBlock;
             free(block);

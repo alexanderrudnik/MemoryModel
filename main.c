@@ -85,6 +85,5 @@ void doFree() {
     scanf("%i", &address);
     ptr = (VA) address;
     printf("Return code = %i\n", _free(ptr));
-    _write(ptr, " ", 1);
 }
 
