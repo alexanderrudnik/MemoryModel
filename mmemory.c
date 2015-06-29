@@ -48,7 +48,7 @@ int _free(VA ptr);
 void printInfo();
 int writeToFile(unsigned int offset, VA writtenPage);
 int readFromFile(unsigned int offset, VA readPage);
-int mallocInOnePage(VA* ptr, size_t szBlock, int numb);
+int mallocInOnePage(VA *ptr, size_t szBlock, int numb);
 void addToUsedBlocks(struct Page* page, struct Block* block);
 VA convertVAtoPA(VA ptr, unsigned int *offsetPage, unsigned int *offsetBlock);
 void swapPages(struct Page* fromMemory, struct Page* inMemory);
@@ -104,8 +104,8 @@ int _init_memory (int n, int szPage) {
     return SUCCESS;
 }
 
-int _malloc (VA* ptr, size_t szBlock) {
-    if (NULL == ptr || szBlock <= 0) {
+int _malloc (VA *ptr, size_t szBlock) {
+    if (!ptr || szBlock <= 0) {
         return WRONG_PARAMETERS;
     }
     struct Page* reservePage = NULL;
@@ -240,7 +240,7 @@ int readFromFile(unsigned int offset, VA readPage) {
     return SUCCESS;
 }
 
-int mallocInOnePage(VA* ptr, size_t szBlock, int numb) {
+int mallocInOnePage(VA *ptr, size_t szBlock, int numb) {
     struct Page* page = &pageTable[numb];
     struct Block* blockPtr = page -> pFirstFree;
     struct Block* parentBlock = NULL;
