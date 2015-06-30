@@ -90,13 +90,13 @@ int _init_memory (int n, int szPage) {
 
         if ((i + 1) * pageSize > MEMORY_SIZE) {
             if(!writeToFile(swapOffsetPage, physicalMemory)) {
-                pageTable[i].pInfo.offsetPage = swapOffsetPage;
+                pageTable[i].pInfo.offsetPage = swapOffsetPage++;
                 pageTable[i].pInfo.isUse = false;
             } else {
                 return UNKNOWN_ERROR;
             }
         } else {
-            pageTable[i].pInfo.offsetPage = memoryOffsetPage;
+            pageTable[i].pInfo.offsetPage = memoryOffsetPage++;
             pageTable[i].pInfo.isUse = true;
         }
 
@@ -257,9 +257,10 @@ int mallocInOnePage(VA *ptr, size_t szBlock, int numb) {
                 }
                 else {
                     page -> pFirstFree = NULL;
-                    blockPtr -> pNext = NULL;
-                    addToUsedBlocks(page, blockPtr);
                 }
+                blockPtr -> pNext = NULL;
+                addToUsedBlocks(page, blockPtr);
+
             }
             else {
                 struct Block* usedBlock;
@@ -342,6 +343,7 @@ VA convertVAtoPA(VA ptr, unsigned int *offsetPage, unsigned int *offsetBlock) {
     int address = (int) ptr;
     *offsetPage = address / pageSize;
     *offsetBlock = address % pageSize;
+    printf("\n%i %i\n", *offsetPage, pageTable[*offsetPage].pInfo.offsetPage);
     if (pageTable[*offsetPage].pInfo.isUse) {
         return physicalMemory + pageTable[*offsetPage].pInfo.offsetPage * pageSize + *offsetBlock;
     }
